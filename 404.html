@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0b1020">
+
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="Hipertrofia 45">
+
+<title>Hipertrofia 45</title>
+<style>
+:root{--bg:#0b1020;--card:#121a2c;--card2:#182238;--text:#f2f5ff;--muted:#a6b0c6;--accent:#6ee7b7;--line:#2b3853;--warn:#fbbf24}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Segoe UI,Arial,sans-serif}
+body{padding-bottom:calc(84px + env(safe-area-inset-bottom))}
+header{padding:calc(16px + env(safe-area-inset-top)) 16px 10px}
+h1{margin:0;font-size:32px} p{line-height:1.5}
+.muted{color:var(--muted)}
+.wrap{padding:0 14px}
+.tabs{position:sticky;top:0;z-index:20;display:flex;gap:8px;overflow-x:auto;background:rgba(11,16,32,.96);backdrop-filter:blur(12px);padding:10px 14px;border-bottom:1px solid var(--line)}
+.tab{flex:0 0 auto;border:1px solid var(--line);background:var(--card);color:var(--text);padding:12px 14px;border-radius:14px;font-weight:700}
+.tab.active{background:var(--accent);color:#062117;border-color:transparent}
+.page{display:none} .page.active{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:15px;margin:12px 0}
+.notice{border-left:4px solid var(--warn)}
+.daybar{display:flex;gap:8px;overflow-x:auto;margin:10px 0}
+.daybtn{flex:0 0 auto;padding:11px 13px;border-radius:12px;border:1px solid var(--line);background:var(--card2);color:var(--text);font-weight:700}
+.daybtn.active{background:#60a5fa;color:#06162c;border-color:transparent}
+.exercise{border-top:1px solid var(--line);padding:14px 0} .exercise:first-child{border-top:0}
+.exname{font-weight:800;font-size:18px}
+.tags{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.tag{border:1px solid var(--line);padding:5px 8px;border-radius:999px;font-size:12px;color:#dbe5ff}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+button,a.btn{min-height:46px;border-radius:12px;border:0;padding:11px 12px;font-weight:800;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center}
+.primary{background:var(--accent);color:#062117} .secondary{background:#253452;color:#fff}
+.checkrow{display:flex;align-items:center;gap:10px;margin-top:10px}
+input[type=checkbox]{width:22px;height:22px;accent-color:var(--accent)}
+.timer{position:fixed;left:14px;right:14px;bottom:calc(14px + env(safe-area-inset-bottom));z-index:30;background:#0f1829;border:1px solid var(--line);border-radius:18px;padding:11px 12px;display:none;align-items:center;justify-content:space-between}
+.timer.show{display:flex}
+.time{font-size:28px;font-weight:900;font-variant-numeric:tabular-nums}
+.food{padding:12px 0;border-top:1px solid var(--line)} .food:first-child{border-top:0}
+input[type=number],input[type=text]{width:100%;min-height:46px;border-radius:12px;border:1px solid var(--line);background:#0e1728;color:#fff;padding:11px 12px;font-size:16px}
+.kpi{font-size:30px;font-weight:900}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.small{font-size:13px}
+</style>
+</head>
+<body>
+<header><h1>Hipertrofia 45</h1><p class="muted">4 días · 45 min · Mancuernas + calistenia · RIR 2–3</p></header>
+
+<nav class="tabs">
+<button class="tab active" data-page="rutina">Rutina</button>
+<button class="tab" data-page="dieta">Dieta</button>
+<button class="tab" data-page="videos">Videos</button>
+<button class="tab" data-page="progreso">Progreso</button>
+</nav>
+
+<main class="wrap">
+<section id="rutina" class="page active">
+<div class="card notice"><strong>Respiración continua.</strong> Exhala durante el esfuerzo. No uses Valsalva, no entrenes al fallo y no persigas cargas máximas.</div>
+<div class="daybar" id="daybar"></div>
+<div class="card">
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+    <div><strong>Sesión</strong><div class="muted small">Límite total</div></div>
+    <div class="kpi" id="sessionClock">45:00</div>
+  </div>
+  <div class="actions">
+    <button id="startSession" class="primary">▶ Iniciar</button>
+    <button id="resetSession" class="secondary">↺ Reiniciar</button>
+  </div>
+</div>
+<div class="card" id="routineBox"></div>
+</section>
+
+<section id="dieta" class="page">
+<div class="card">
+<h2>Proteína diaria</h2>
+<p class="muted">Calculadora 1,6–2,0 g/kg/día.</p>
+<input id="peso" type="number" inputmode="decimal" value="77.5" min="40" max="180" step="0.1">
+<div class="grid2" style="margin-top:12px"><div><div id="range" class="kpi">124–155 g</div><div class="muted small">rango</div></div><div><div id="mid" class="kpi">140 g</div><div class="muted small">referencia 1,8 g/kg</div></div></div>
+</div>
+<div class="card"><h2>Día de entrenamiento</h2><div id="dietBox"></div></div>
+<div class="card">
+<h2>Suplementación práctica</h2>
+<p><strong>ISO WHEY:</strong> 1 scoop cuando facilite alcanzar el objetivo diario.</p>
+<p><strong>Creatina:</strong> 4 g diarios.</p>
+<p><strong>Superávit:</strong> +150 a +250 kcal/día inicialmente.</p>
+</div>
+</section>
+
+<section id="videos" class="page">
+<div class="card"><h2>Técnica por ejercicio</h2><p class="muted">Los videos abren en Safari/YouTube. La rutina funciona sin conexión.</p><input id="search" type="text" placeholder="Buscar ejercicio…"><div id="videoBox"></div></div>
+</section>
+
+<section id="progreso" class="page">
+<div class="card">
+<h2>Registro de progreso</h2>
+<p class="muted">Los datos se guardan en este iPhone mientras uses la app instalada desde la misma dirección web.</p>
+<label>Fecha</label><input id="mFecha" type="date">
+<label>Peso kg</label><input id="mPeso" type="number" inputmode="decimal" step="0.1" style="margin-top:8px">
+<label>Cintura cm</label><input id="mCintura" type="number" inputmode="decimal" step="0.1" style="margin-top:8px">
+<label>Brazo cm</label><input id="mBrazo" type="number" inputmode="decimal" step="0.1" style="margin-top:8px">
+<label>Muslo cm</label><input id="mMuslo" type="number" inputmode="decimal" step="0.1" style="margin-top:8px">
+<label>Pecho cm</label><input id="mPecho" type="number" inputmode="decimal" step="0.1" style="margin-top:8px">
+<button id="saveProgress" class="primary" style="width:100%;margin-top:10px">Guardar medición</button>
+</div>
+<div class="card">
+<h2>Historial</h2>
+<div id="historyBox" class="muted">Sin mediciones todavía.</div>
+</div>
+</section>
+</main>
+
+<div class="timer" id="timer"><div><div class="muted small">Descanso</div><div class="time" id="time">00:00</div></div><button id="closeTimer" class="secondary">Cerrar</button></div>
+
+<script>
+const R={"Lunes": [["Flexiones con pies elevados", "3 × 8–15", "90 s", "Pecho superior · tríceps · deltoide anterior", "Cuerpo en bloque. Baja controlado y exhala al subir.", "https://www.youtube.com/watch?v=DBz85WuXqMk"], ["Remo unilateral con mancuerna", "3 × 10–15/lado", "90 s", "Dorsal · espalda media", "Espalda neutra. Lleva el codo hacia la cadera.", "https://www.youtube.com/watch?v=8iMJWCAIV78"], ["Elevación lateral", "3 × 12–20", "60 s", "Deltoide lateral", "Sin impulso. Hombros bajos. No excedas aprox. la altura del hombro.", "https://www.youtube.com/watch?v=Myim1WH6Qec"], ["Curl supinado", "3 × 10–15", "60 s", "Bíceps", "Codos quietos y bajada controlada de 2–3 s.", "https://www.getfitapp.ai/exercises/standing-dumbbell-curl/"], ["Extensión tumbada de tríceps", "3 × 10–15", "60 s", "Tríceps", "Mantén el brazo estable y mueve principalmente el codo.", "https://www.fitmediaplus.com/exercise/lying-dumbbell-extension"], ["Crunch con mancuerna", "3 × 12–20", "60 s", "Recto abdominal", "Acerca costillas hacia pelvis y exhala al subir.", "https://www.fitmediaplus.com/exercise/weighted-crunch"], ["Reverse fly", "2 × 15–20", "60 s", "Deltoide posterior · espalda alta", "Bisagra de cadera, espalda neutra y peso ligero.", "https://www.yourhousefitness.com/blog/exercise-tutorial-dumbbell-reverse-fly"]], "Martes": [["Sentadilla búlgara", "3 × 10–12/pierna", "90 s", "Cuádriceps · glúteos", "Pie delantero estable. Rodilla alineada con el pie.", "https://www.youtube.com/watch?v=hbw7hdyOpq0"], ["Goblet squat con talones elevados", "3 × 10–15", "90 s", "Cuádriceps · glúteos", "Mancuerna al pecho y torso relativamente vertical.", "https://www.youtube.com/watch?v=nfX7IFK9UNI"], ["Peso muerto rumano con mancuernas", "3 × 10–15", "90 s", "Isquiotibiales · glúteos", "Bisagra de cadera y espalda neutra.", "https://www.youtube.com/watch?v=aa57T45iFSE"], ["Puente de glúteo con mancuerna", "3 × 12–20", "75 s", "Glúteos", "Empuja con talones y no hiperextiendas la zona lumbar.", "https://www.fitmetrics.ch/en/exercise/6733d70c7a717-dumbbell-glute-bridge/videos"], ["Reverse crunch", "3 × 12–20", "60 s", "Abdomen", "Enrolla la pelvis; no balancees las piernas.", "https://www.youtube.com/watch?v=7rRWy7-Gokg"]], "Jueves": [["Flexiones con pies elevados", "3 × 8–15", "90 s", "Pecho superior · tríceps", "Cuerpo en bloque y respiración continua.", "https://www.youtube.com/watch?v=DBz85WuXqMk"], ["Remo unilateral con mancuerna", "3 × 10–15/lado", "90 s", "Dorsal · espalda media", "Codo hacia la cadera; no rotes el tronco.", "https://www.youtube.com/watch?v=8iMJWCAIV78"], ["Elevación lateral", "3 × 15–20", "60 s", "Deltoide lateral", "Peso controlable y cero balanceo.", "https://www.youtube.com/watch?v=Myim1WH6Qec"], ["Reverse fly", "3 × 15–20", "60 s", "Deltoide posterior", "Bisagra de cadera y hombros bajos.", "https://www.yourhousefitness.com/blog/exercise-tutorial-dumbbell-reverse-fly"], ["Curl martillo", "3 × 10–15", "60 s", "Braquial · bíceps", "Palmas enfrentadas y codos quietos.", "https://www.youtube.com/shorts/OPhgvwKBOwI"], ["Press cerrado con mancuernas en suelo", "3 × 10–15", "75 s", "Tríceps · pecho", "Agarre neutro y codos cerca del torso.", "https://www.youtube.com/watch?v=3MOTmr8nboI"], ["Dead bug", "2 × 8–12/lado", "45 s", "Core profundo", "Controla la zona lumbar al extender brazo y pierna contrarios.", "https://www.youtube.com/watch?v=bxn9FBrt4-A"]], "Viernes": [["Zancada inversa con mancuernas", "3 × 10–12/pierna", "90 s", "Glúteos · cuádriceps", "Paso atrás y torso estable.", "https://www.fitmetrics.ch/en/exercise/6733d70cb254c-dumbbell-reverse-lunge/videos"], ["Sentadilla búlgara — énfasis cuádriceps", "2 × 12–15/pierna", "90 s", "Cuádriceps · glúteos", "Torso erguido y descenso controlado.", "https://www.youtube.com/watch?v=hbw7hdyOpq0"], ["Peso muerto rumano", "2 × 12–15", "90 s", "Isquiotibiales · glúteos", "Bisagra de cadera y espalda neutra.", "https://www.youtube.com/watch?v=aa57T45iFSE"], ["Puente unilateral de glúteo", "2 × 12–15/pierna", "60 s", "Glúteos", "Pelvis horizontal; evita rotar.", "https://www.youtube.com/watch?v=VUl8R0kn6v4"], ["Pantorrilla unilateral", "2 × 15–20/pierna", "45 s", "Gemelos · sóleo", "Baja lento y sube sin rebotes.", "https://support.runna.com/en/articles/6337186-single-leg-calf-raise-exercise-tutorial-for-runners"], ["Crunch con mancuerna", "3 × 12–20", "60 s", "Abdomen", "Peso sobre el pecho y exhala al subir.", "https://www.fitmediaplus.com/exercise/weighted-crunch"]]};
+const D=[["03:35–03:45", "Preentreno opcional", "½–1 banano pequeño o una porción pequeña de avena + agua, solo si necesitas energía."], ["05:00", "Postentreno", "1 scoop ISO WHEY + avena + fruta entera. Creatina 4 g aquí o con otra comida."], ["07:00", "Desayuno", "Huevos/claras o yogur alto en proteína + avena/pan integral + fruta."], ["12:30", "Almuerzo", "160–180 g de pollo, pescado o carne magra + arroz/papa/legumbre + ensalada."], ["16:00", "Snack", "Yogur griego natural o queso fresco bajo en grasa + nueces en porción moderada."], ["19:00", "Cena", "Pescado, pollo, huevos o legumbres + verduras + carbohidrato moderado según actividad."]];
+const days=["Lunes","Martes","Jueves","Viernes"];
+let current="Lunes";
+const daybar=document.getElementById("daybar"), box=document.getElementById("routineBox");
+
+document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>{
+ document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+ document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));
+ b.classList.add("active"); document.getElementById(b.dataset.page).classList.add("active");
+}));
+
+days.forEach((d,i)=>{const b=document.createElement("button");b.className="daybtn"+(i===0?" active":"");b.textContent=d;b.addEventListener("click",()=>{current=d;document.querySelectorAll(".daybtn").forEach(x=>x.classList.remove("active"));b.classList.add("active");renderDay()});daybar.appendChild(b);});
+
+let t=null;
+function startTimer(sec){
+ clearInterval(t); let left=sec; const T=document.getElementById("timer"), n=document.getElementById("time"); T.classList.add("show");
+ const draw=()=>n.textContent=String(Math.floor(left/60)).padStart(2,"0")+":"+String(left%60).padStart(2,"0");
+ draw(); t=setInterval(()=>{left--; if(left<=0){left=0;clearInterval(t)} draw();},1000);
+}
+document.getElementById("closeTimer").addEventListener("click",()=>{clearInterval(t);document.getElementById("timer").classList.remove("show")});
+
+function renderDay(){
+ box.innerHTML="<h2>"+current+"</h2><p class='muted'>5 min de calentamiento + trabajo principal · RIR 2–3.</p>"+R[current].map((e,i)=>`
+ <div class="exercise">
+  <div class="exname">${e[0]}</div><div class="muted">${e[3]}</div>
+  <div class="tags"><span class="tag">${e[1]}</span><span class="tag">${e[2]} descanso</span></div>
+  <div>${e[4]}</div>
+  <div class="checkrow"><input type="checkbox" id="c_${current}_${i}"><label for="c_${current}_${i}">Completado</label></div>
+  <div class="actions"><button class="secondary rest" data-sec="${parseInt(e[2])}">⏱ Descanso</button><a class="btn primary" href="${e[5]}" target="_blank" rel="noopener">▶ Técnica</a></div>
+ </div>`).join("");
+ box.querySelectorAll(".rest").forEach(b=>b.addEventListener("click",()=>startTimer(Number(b.dataset.sec))));
+}
+renderDay();
+
+document.getElementById("dietBox").innerHTML=D.map(x=>`<div class="food"><strong>${x[0]} · ${x[1]}</strong><div class="muted">${x[2]}</div></div>`).join("");
+const peso=document.getElementById("peso");
+function prot(){let w=Math.min(180,Math.max(40,Number(peso.value)||77.5));document.getElementById("range").textContent=Math.round(w*1.6)+"–"+Math.round(w*2)+" g";document.getElementById("mid").textContent=Math.round(w*1.8)+" g";}
+peso.addEventListener("input",prot);prot();
+
+const unique={};Object.values(R).flat().forEach(e=>unique[e[0]]=e);
+function renderVideos(q=""){
+ q=q.toLowerCase();const arr=Object.values(unique).filter(e=>e[0].toLowerCase().includes(q)||e[3].toLowerCase().includes(q));
+ document.getElementById("videoBox").innerHTML=arr.map(e=>`<div class="exercise"><div class="exname">${e[0]}</div><div class="muted">${e[3]}</div><p>${e[4]}</p><a class="btn primary" href="${e[5]}" target="_blank" rel="noopener">▶ Abrir video</a></div>`).join("");
+}
+document.getElementById("search").addEventListener("input",e=>renderVideos(e.target.value));renderVideos();
+
+
+function localDateKey(){
+ const d=new Date();
+ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+}
+function doneKey(day,i){ return "h45_done_"+localDateKey()+"_"+day+"_"+i; }
+
+const originalRenderDay=renderDay;
+renderDay=function(){
+ originalRenderDay();
+ box.querySelectorAll('input[type="checkbox"]').forEach((c,i)=>{
+   c.checked=localStorage.getItem(doneKey(current,i))==="1";
+   c.addEventListener("change",()=>localStorage.setItem(doneKey(current,i),c.checked?"1":"0"));
+ });
+};
+renderDay();
+
+let sessionSeconds=45*60, sessionTimer=null, sessionRunning=false;
+function drawSession(){
+ document.getElementById("sessionClock").textContent=
+   String(Math.floor(sessionSeconds/60)).padStart(2,"0")+":"+String(sessionSeconds%60).padStart(2,"0");
+}
+document.getElementById("startSession").addEventListener("click",()=>{
+ if(sessionRunning) return;
+ sessionRunning=true;
+ sessionTimer=setInterval(()=>{
+   sessionSeconds--;
+   if(sessionSeconds<=0){ sessionSeconds=0; clearInterval(sessionTimer); sessionRunning=false; }
+   drawSession();
+ },1000);
+});
+document.getElementById("resetSession").addEventListener("click",()=>{
+ clearInterval(sessionTimer); sessionRunning=false; sessionSeconds=45*60; drawSession();
+});
+drawSession();
+
+const fecha=document.getElementById("mFecha");
+fecha.value=localDateKey();
+function getProgress(){ try{return JSON.parse(localStorage.getItem("h45_progress")||"[]")}catch(e){return[]} }
+function saveProgressList(x){ localStorage.setItem("h45_progress",JSON.stringify(x)); }
+function renderHistory(){
+ const list=getProgress().slice().sort((a,b)=>b.fecha.localeCompare(a.fecha));
+ const hb=document.getElementById("historyBox");
+ if(!list.length){ hb.innerHTML="Sin mediciones todavía."; return; }
+ hb.innerHTML=list.map(r=>`<div class="food">
+   <strong>${r.fecha}</strong>
+   <div class="muted small">Peso ${r.peso||"—"} kg · Cintura ${r.cintura||"—"} cm · Brazo ${r.brazo||"—"} cm · Muslo ${r.muslo||"—"} cm · Pecho ${r.pecho||"—"} cm</div>
+ </div>`).join("");
+}
+document.getElementById("saveProgress").addEventListener("click",()=>{
+ const r={
+   fecha:fecha.value||localDateKey(),
+   peso:document.getElementById("mPeso").value,
+   cintura:document.getElementById("mCintura").value,
+   brazo:document.getElementById("mBrazo").value,
+   muslo:document.getElementById("mMuslo").value,
+   pecho:document.getElementById("mPecho").value
+ };
+ let list=getProgress();
+ const idx=list.findIndex(x=>x.fecha===r.fecha);
+ if(idx>=0) list[idx]=r; else list.push(r);
+ saveProgressList(list); renderHistory();
+});
+renderHistory();
+
+if("serviceWorker" in navigator){
+ window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));
+}
+</script>
+</body>
+</html>
